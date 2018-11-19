@@ -1,0 +1,21 @@
+{
+  "name": "react-native-asyncstorage-queue",
+  "version": "1.0.0",
+  "description": "A React Native job queue backed by persistent AsyncStorage.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native",
+    "react",
+    "queue",
+    "job-queue",
+    "task-queue"
+  ],
+  "author": "FalaFreud Inc., Haroldo Shigueaki Teruya;",
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": "^0.51.0"
+  }
+}
