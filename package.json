@@ -13,7 +13,7 @@
     "job-queue",
     "task-queue"
   ],
-  "author": "FalaFreud Inc., Haroldo Shigueaki Teruya;",
+  "author": "FalaFreud Inc., Haroldo Shigueaki Teruya",
   "license": "MIT",
   "peerDependencies": {
     "react-native": "^0.51.0"

@@ -1,21 +1,17 @@
 /**
- * @author FaalFreud Inc., Haroldo Shigueaki Teruya <haroldo.s.teruya@gmail.com>
+ * @author FalaFreud Inc., Haroldo Shigueaki Teruya <haroldo.s.teruya@gmail.com>
  * @version 1.0.0
  */
 
 //==========================================================================
 // IMPORTS
 
-import Database from '../DataBaseController';
-import uuid from 'react-native-uuid';
-import promiseReflect from 'promise-reflect';
-
 /**
  * This class requires:
  * @class
- * @requires NativeModules from react-native
+ * @requires DataBase
  */
-import { NativeModules } from 'react-native';
+import DataBase from './DataBase';
 
 //==========================================================================
 /**
@@ -28,10 +24,13 @@ class QueueManager {
      * Creates a instance of QueueManager.
      */
     constructor() {
+        this.status = this.Status.INACTIVE;
+        this.worker = null;
+        this.jobList = [];
     }
 
     //==========================================================================
-    // METHODS
+    // GETTERS
 
     get TAG() {
         return 'Queue Manager';
@@ -44,18 +43,16 @@ class QueueManager {
         };
     }
 
-    constructor() {
-        this.realm = null;
-        this.status = this.Status.INACTIVE;
-        this.worker = null;
-        this.jobList = [];
+    get getJobList() {
+        return this.jobList;
     }
 
+    //==========================================================================
+    // METHODS
+
     async init() {
-        if (this.realm === null) {            
-            this.realm = Database;
-            this.jobList = await this.realm.objects('Job');
-        }
+        console.log(this.TAG, DataBase);
+        this.jobList = await DataBase.objects('Job');
     }
 
     setCallback(callback) {
@@ -65,9 +62,10 @@ class QueueManager {
     async createJob(payload, autoStart = false) {
         console.log(this.TAG, 'createJob autoStart:', autoStart);
         this.jobList.push(payload);
-        const success = await this.realm.write('Job', this.jobList);
+        console.log(this.TAG, DataBase);
+        const success = await DataBase.write('Job', this.jobList);
 
-        // console.log(this.TAG, 'createJob success:', success, this.jobList);
+        console.log(this.TAG, 'createJob success:', success, this.jobList);
 
         if (success && this.status === this.Status.INACTIVE && autoStart) {
             await this.start();
@@ -124,28 +122,24 @@ class QueueManager {
         this.status = this.Status.INACTIVE;
     }
 
-    getJobs() {
-        return this.jobList;
-    }
-
     async setJobInactive(job) {
         const index = this.jobList.indexOf(job);
         this.jobList[index] = {
             ...this.jobList[index],
             active: false
         };
-        return await this.realm.write('Job', this.jobList);
+        return await DataBase.write('Job', this.jobList);
     }
 
     async flushJob(job) {
         const indexToRemove = this.jobList.indexOf(job);
         this.jobList.splice(indexToRemove, 1);
-        return await this.realm.write('Job', this.jobList);
+        return await DataBase.write('Job', this.jobList);
     }
 
     async flushQueue() {
         this.jobList = [];
-        return await this.realm.deleteAll('Job');
+        return await DataBase.deleteAll('Job');
     }
 }
 

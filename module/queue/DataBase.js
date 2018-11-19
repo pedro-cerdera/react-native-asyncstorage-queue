@@ -1,27 +1,31 @@
-/* eslint-disable no-console */
-import { AsyncStorage } from 'react-native';
-// import Realm from 'realm';
 
-const JobSchema = {
-    name: 'Job',
-    primaryKey: 'id',
-    properties: {
-        id: 'string', // UUID.
-        name: 'string', // Job name to be matched with worker function.
-        payload: 'string', // Job payload stored as JSON.
-        data: 'string', // Store arbitrary data like "failed attempts" as JSON.
-        priority: 'int', // -5 to 5 to indicate low to high priority.
-        active: { type: 'bool', default: false }, // Whether or not job is currently being processed.
-        timeout: 'int', // Job timeout in ms. 0 means no timeout.
-        created: 'date', // Job creation timestamp.
-        failed: 'date?' // Job failure timestamp (null until failure).
-    }
-};
+/**
+ * @author FalaFreud Inc., Haroldo Shigueaki Teruya <haroldo.s.teruya@gmail.com>
+ * @version 1.0.0
+ */
 
-class DataBaseController {
+//==========================================================================
+// IMPORTS
+
+/**
+ * This class requires:
+ * @class
+ * @requires AsyncStorage
+ */
+ import { AsyncStorage } from 'react-native';
+
+ //==========================================================================
+ /**
+  * @class
+  * @classdesc
+  */
+class DataBase {
+
+    //==========================================================================
+    // METHODS
 
     get TAG() {
-        return 'Queue DataBaseController';
+        return 'Queue DataBase';
     }
 
     async write(scheme, jobList) {
@@ -36,7 +40,6 @@ class DataBaseController {
 
     async objects(scheme) {
         let jobs = [];
-
         try {
             jobs = await AsyncStorage.getItem(scheme);
             if (jobs) {
@@ -45,7 +48,6 @@ class DataBaseController {
         } catch (e) {
             console.log(this.TAG, e);
         }
-
         return jobs;
     }
 
@@ -62,12 +64,10 @@ class DataBaseController {
         } catch (e) {
             console.log(this.TAG, e);
         }
-
         return false;
     }
 
-    async deleteAll(scheme) {
-        console.log(this.TAG, 'delete all...');
+    async deleteAll(scheme) {        
         try {
             await AsyncStorage.removeItem(scheme);
             return true;
@@ -78,4 +78,10 @@ class DataBaseController {
     }
 }
 
-module.exports = new DataBaseController();
+//==========================================================================
+// EXPORTS
+
+/**
+ * @module
+ */
+module.exports = new DataBase();
