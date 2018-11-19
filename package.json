@@ -1,6 +1,6 @@
 {
   "name": "react-native-asyncstorage-queue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A React Native job queue backed by persistent AsyncStorage.",
   "main": "index.js",
   "scripts": {
