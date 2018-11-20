@@ -75,13 +75,12 @@ class QueueManager {
 
         this.status = this.Status.ACTIVE;
 
-
         while (this.status === this.Status.ACTIVE && this._jobList.length) {
             let job = await this.getNextJob();
 
             if (job) {
                 const success = await this.worker(job);
-                
+
                 if (success) {
                     await this.flushJob(job);
                 } else {
