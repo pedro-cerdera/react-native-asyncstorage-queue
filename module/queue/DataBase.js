@@ -67,7 +67,7 @@ class DataBase {
         return false;
     }
 
-    async deleteAll(scheme) {        
+    async deleteAll(scheme) {
         try {
             await AsyncStorage.removeItem(scheme);
             return true;

@@ -26,7 +26,7 @@ class QueueManager {
     constructor() {
         this.status = this.Status.INACTIVE;
         this.worker = null;
-        this.jobList = [];
+        this._jobList = [];
     }
 
     //==========================================================================
@@ -43,16 +43,15 @@ class QueueManager {
         };
     }
 
-    get getJobList() {
-        return this.jobList;
+    get jobList() {
+        return this._jobList;
     }
 
     //==========================================================================
     // METHODS
 
     async init() {
-        console.log(this.TAG, DataBase);
-        this.jobList = await DataBase.objects('Job');
+        this._jobList = await DataBase.objects('Job');
     }
 
     setCallback(callback) {
@@ -60,12 +59,9 @@ class QueueManager {
     }
 
     async createJob(payload, autoStart = false) {
-        console.log(this.TAG, 'createJob autoStart:', autoStart);
-        this.jobList.push(payload);
-        console.log(this.TAG, DataBase);
-        const success = await DataBase.write('Job', this.jobList);
+        this._jobList.push(payload);
 
-        console.log(this.TAG, 'createJob success:', success, this.jobList);
+        const success = await DataBase.write('Job', this._jobList);
 
         if (success && this.status === this.Status.INACTIVE && autoStart) {
             await this.start();
@@ -73,8 +69,6 @@ class QueueManager {
     }
 
     async start() {
-        console.log(this.TAG, 'start...', this.status ? 'active' : 'inactive');
-
         if (this.status === this.Status.ACTIVE) {
             return;
         }
@@ -82,19 +76,12 @@ class QueueManager {
         this.status = this.Status.ACTIVE;
 
 
-        while (this.status === this.Status.ACTIVE && this.jobList.length) {
-
-            console.log(this.TAG,
-                'runnable:', this.status === this.Status.ACTIVE,
-                'jobList length:', this.jobList.length
-            );
-
+        while (this.status === this.Status.ACTIVE && this._jobList.length) {
             let job = await this.getNextJob();
 
             if (job) {
                 const success = await this.worker(job);
-                console.log(this.TAG, 'worked:', success);
-
+                
                 if (success) {
                     await this.flushJob(job);
                 } else {
@@ -110,9 +97,9 @@ class QueueManager {
     }
 
      getNextJob() {
-        for(let i = 0; i < this.jobList.length; i++) {
-            if (this.jobList[i].active) {
-                return this.jobList[i];
+        for(let i = 0; i < this._jobList.length; i++) {
+            if (this._jobList[i].active) {
+                return this._jobList[i];
             }
         }
         return null;
@@ -123,22 +110,22 @@ class QueueManager {
     }
 
     async setJobInactive(job) {
-        const index = this.jobList.indexOf(job);
-        this.jobList[index] = {
-            ...this.jobList[index],
+        const index = this._jobList.indexOf(job);
+        this._jobList[index] = {
+            ...this._jobList[index],
             active: false
         };
-        return await DataBase.write('Job', this.jobList);
+        return await DataBase.write('Job', this._jobList);
     }
 
     async flushJob(job) {
-        const indexToRemove = this.jobList.indexOf(job);
-        this.jobList.splice(indexToRemove, 1);
-        return await DataBase.write('Job', this.jobList);
+        const indexToRemove = this._jobList.indexOf(job);
+        this._jobList.splice(indexToRemove, 1);
+        return await DataBase.write('Job', this._jobList);
     }
 
     async flushQueue() {
-        this.jobList = [];
+        this._jobList = [];
         return await DataBase.deleteAll('Job');
     }
 }
