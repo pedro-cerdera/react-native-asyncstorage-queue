@@ -11,7 +11,8 @@
     "react",
     "queue",
     "job-queue",
-    "task-queue"
+    "task-queue",
+    "AsyncStorage"
   ],
   "repository": {
     "type": "git",
